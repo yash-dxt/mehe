@@ -1,4 +1,7 @@
 const config = require('../../config');
+const {
+    MDB
+} = require('../db/mongo/client');
 const app = require('./app');
 
 
@@ -11,6 +14,8 @@ const env = config.environment;
 const port = config.hosting.port || 3000;
 
 
-app.listen(port, () => {
+app.listen(port, async () => {
+
+    await MDB.getClient();
     console.log(`App is running on port ${port} and environment: ${env}`);
 })
