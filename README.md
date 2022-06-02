@@ -1,3 +1,26 @@
+## 🛫 Dependencies/Packages Used:
+
+In NodeJS you can import packages using npm: 
+
+**How?**
+
+- npm init -y
+    - Initialized package.json & all the multiple options yes (due to -y)
+- npm install <package_name>
+    - Once package.json is initialized - this command can be used throughout the project for importing new projects.
+
+**Packages:** 
+
+📦 **[dotenv](https://www.npmjs.com/package/dotenv)**
+
+- Used for reading environment variables through multiple environments.
+- This package is used in *config.js* and all the environment variables are distributed through that file.
+
+📦 **[express](https://www.npmjs.com/package/express)**
+
+- framework for providing routing in a simple, subtle way (creating REST APIs)
+
+---
 ## 💽 Database Design
 
 ![Database Design ](./images/database-design.jpg)
