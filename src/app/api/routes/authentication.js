@@ -2,10 +2,15 @@ const express = require('express');
 const mongo = require('../../db/mongo/index');
 
 const BadRequestError = require('../../errors/BadRequestError');
-const DatabaseError = require('../../errors/DatabaseError')
+const DatabaseError = require('../../errors/DatabaseError');
+const NotAuthenticatedError = require('../../errors/NotAuthenticatedError');
 
+const validateLoginSchema = require('../../utils/joi/login');
 const validateSignupSchema = require('../../utils/joi/signup');
-const generatePasswordHash = require('../../utils/password/bcrypt');
+const {
+    generatePasswordHash,
+    checkPasswordHash
+} = require('../../utils/password/bcrypt');
 
 
 const {
@@ -16,7 +21,8 @@ const {
 module.exports = function authenticationRouter() {
 
     return new express.Router()
-        .post('/signup', signup);
+        .post('/signup', signup)
+        .post('/login', login);
 
     async function signup(req, res) {
         const routeName = 'POST /auth/signup';
@@ -71,4 +77,74 @@ module.exports = function authenticationRouter() {
 
     }
 
+
+
+    async function login(req, res) {
+        const routeName = 'POST /auth/login';
+
+        /**
+         * Schema validation using joi.
+         */
+
+        try {
+            validateLoginSchema(req.body);
+        } catch (e) {
+            throw new BadRequestError(e, routeName);
+        }
+
+        const {
+            username,
+            password
+        } = req.body;
+
+
+        /**
+         * Fetching user from database. 
+         */
+        let user;
+
+        try {
+            user = await mongo.user.getUserByUsername(username);
+        } catch (e) {
+            throw new DatabaseError(routeName, e);
+        }
+
+        if (!user) {
+            throw new NotAuthenticatedError('Not a valid user', routeName);
+        }
+
+
+        /**
+         * Comparing hashed password with request's password. 
+         * If it fails, we send 401.
+         */
+        try {
+            await checkPasswordHash(password, user.password);
+        } catch (e) {
+            throw new NotAuthenticatedError('Bad Credentials', routeName);
+        }
+
+        /***
+         * Signing access token, setting in database as newAccessToken 
+         * and then deleting hashed password & sending it to client. 
+         */
+
+        const accessToken = signAccessToken(username);
+
+
+        try {
+            await mongo.user.setNewAccessToken(username, accessToken);
+        } catch (e) {
+            throw new DatabaseError(routeName, e);
+        }
+
+
+        delete user.password;
+
+        res.status(200).send({
+            user,
+            accessToken
+        });
+
+    }
 }

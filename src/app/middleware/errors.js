@@ -32,7 +32,7 @@ module.exports = function () {
              */
 
             return res.status(500).send({
-                message: 'Something went really wrong, please inform yash@attentioun.com',
+                message: 'Something went really wrong, please inform yashdixitsq@gmail.com',
                 statusCode: 500,
                 error: err,
                 type: 'FATAL ERROR'

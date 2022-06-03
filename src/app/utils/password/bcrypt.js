@@ -14,4 +14,21 @@ const generatePasswordHash = async (password) => {
 
 }
 
-module.exports = generatePasswordHash;
+const checkPasswordHash = async (password, hashedPassword) => {
+    try {
+        const res = await bcrypt.compare(password, hashedPassword);
+
+        if (!res) {
+            throw "Bad Credentials";
+        }
+
+    } catch (e) {
+        throw e;
+    }
+}
+
+
+module.exports = {
+    generatePasswordHash,
+    checkPasswordHash
+}

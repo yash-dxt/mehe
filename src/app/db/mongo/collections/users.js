@@ -69,7 +69,58 @@ const createNewUser = async (username, hashedPassword, email, accessToken, ban =
 }
 
 
+
+const getUserByUsername = async (username) => {
+
+    try {
+
+        const client = await MDB.getClient();
+        let db = client.db(dbName).collection(collection);
+
+        const res = await db.findOne({
+            username
+        })
+        return res;
+
+    } catch (e) {
+        throw e;
+    }
+
+}
+
+
+
+
+const setNewAccessToken = async (username, newAccessToken) => {
+
+    try {
+
+        const client = await MDB.getClient();
+        let db = client.db(dbName).collection(collection);
+
+        const res = await db.updateOne({
+            username
+        }, {
+            $set: {
+                accessToken: newAccessToken
+            }
+        })
+        return res;
+
+    } catch (e) {
+        throw e;
+    }
+
+}
+
+
+
+
+
+
 module.exports = {
     createUniquenessIndex,
-    createNewUser
+    createNewUser,
+    getUserByUsername,
+    setNewAccessToken
 }
