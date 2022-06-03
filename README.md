@@ -49,6 +49,60 @@ Example of successful response:
 3. Save the details of user in Database (check database designs) 
 4. Return success.
 
+
+### **💥 Login API**
+
+> **POST /auth/login**
+> 
+
+> Authorization not required.
+> 
+
+```
+// Body raw (json)
+// @required
+username: - should be minimum of 3 characters & maximum 25 characters
+					- only lowercase alphabets & numericals allowed
+					- ex: dwight12, yash20, jimpam420
+
+password: - should contain a maximum of 100 characters & minimum of 8 characters
+					- ex: yash123456789
+```
+
+Example of Request: 
+Body Raw (JSON)
+```json
+
+{
+	"username": 'yash123', 
+	"password": 'Default@123', 
+}
+```
+
+Example of successful response: 
+
+```json
+{
+    "user": {
+        "_id": "62990b42c5c7eefcdac0c130",
+        "username": "yashdixit123",
+        "email": "yash@attentioun.com",
+        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Inlhc2hkaXhpdDEyMyIsImlhdCI6MTY1NDE5NzA1OH0.HAslReqcoWdGVPRqUDmI7xA0J1iqBGasXWafAFZTDTM",
+        "ban": false,
+        "verified": false
+    },
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Inlhc2hkaXhpdDEyMyIsImlhdCI6MTY1NDI1OTgzN30.iOpmM-tXJOakv08nMvXhISsMqwnAyxXEHENutgo_0qI"
+}
+```
+
+**Implementation Steps:** 
+
+1. Do schema validation of request using ***joi.*** 
+2. Check for user in Database & compare hashed password (using ***bcrypt***)
+3. Sign new access token, and save it in database. 
+4. Return response, delete hashed password.
+
+
 ---
 ## 🛫 Dependencies/Packages Used:
 
