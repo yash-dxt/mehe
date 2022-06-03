@@ -5,6 +5,7 @@ require('express-async-errors');
 const errorHandlingMiddleware = require('../middleware/errors');
 
 const authenticationRouter = require('./routes/authentication');
+const thoughtRouter = require('../api/routes/thoughts');
 
 let app = express();
 
@@ -12,6 +13,7 @@ let app = express();
 app.use(bodyParser.json());
 
 app.use('/auth', authenticationRouter());
+app.use('/thought', thoughtRouter());
 
 app.use(errorHandlingMiddleware());
 

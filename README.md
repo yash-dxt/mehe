@@ -110,9 +110,9 @@ In NodeJS you can import packages using npm:
 
 **How?**
 
-- npm init -y
+- **npm init -y**
     - Initialized package.json & all the multiple options yes (due to -y)
-- npm install <package_name>
+- **npm install <package_name>**
     - Once package.json is initialized - this command can be used throughout the project for importing new projects.
 
 ### Packages:

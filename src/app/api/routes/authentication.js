@@ -124,13 +124,14 @@ module.exports = function authenticationRouter() {
             throw new NotAuthenticatedError('Bad Credentials', routeName);
         }
 
-        /***
+        /**
          * Signing access token, setting in database as newAccessToken 
          * and then deleting hashed password & sending it to client. 
          */
 
         const accessToken = signAccessToken(username);
 
+        user.accessToken = accessToken;
 
         try {
             await mongo.user.setNewAccessToken(username, accessToken);
@@ -142,8 +143,7 @@ module.exports = function authenticationRouter() {
         delete user.password;
 
         res.status(200).send({
-            user,
-            accessToken
+            user
         });
 
     }

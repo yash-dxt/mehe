@@ -1,6 +1,11 @@
 const MDB_COLLECTION_USERS = 'users';
+const MDB_COLLECTION_THOUGHTS = 'thoughts';
+const MDB_COLLECTION_REPLIES = 'replies';
+
 const AUTH_MIDDLEWARE_NAMING = 'auth-mw';
 module.exports = {
     MDB_COLLECTION_USERS,
+    MDB_COLLECTION_THOUGHTS,
+    MDB_COLLECTION_REPLIES,
     AUTH_MIDDLEWARE_NAMING
 }

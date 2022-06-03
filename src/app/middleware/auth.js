@@ -1,13 +1,14 @@
 const {
     AUTH_MIDDLEWARE_NAMING
 } = require("../../constants");
+const mongo = require('../db/mongo/index')
 const NotAuthenticatedError = require("../errors/NotAuthenticatedError");
 const {
     verifyAccessToken
 } = require("../utils/tokens/jwt");
 
 
-module.exports = () => {
+module.exports = (getUser) => {
     return async (req, res, next) => {
 
         const token = req.headers.authorization;
@@ -25,7 +26,12 @@ module.exports = () => {
             return;
         }
 
-        req.username = username;
+        if (getUser) {
+            const user = await mongo.user.getUserByUsername(username);
+            req.user = user;
+        } else {
+            req.username = username;
+        }
 
         next();
 

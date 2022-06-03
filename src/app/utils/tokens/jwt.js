@@ -5,11 +5,9 @@ const jwt = require('jsonwebtoken');
 
 
 const signAccessToken = (username) => {
-
     const accessToken = jwt.sign({
         username
     }, secret);
-    console.log(accessToken);
     return accessToken;
 }
 
