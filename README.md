@@ -1,3 +1,56 @@
+## 🌐 REST APIs Documentation
+
+### **💥 Signup API**
+
+> **POST /auth/signup**
+> 
+
+> Authorization not required.
+> 
+
+```json
+// Body raw (json)
+// @required
+username: - should be minimum of 3 characters & maximum 25 characters
+					- only lowercase alphabets & numericals allowed
+					- ex: dwight12, yash20, jimpam420
+
+password: - should contain a maximum of 100 characters & minimum of 8 characters
+					- ex: yash123456789
+
+email: - should be a valid email 
+			 - ex: yashdixitsq@gmail.com
+```
+
+Example of Request: 
+
+```json
+Body Raw (JSON): 
+
+{
+	"username": "yash123", 
+	"password": "Default@123", 
+	"email": "yashdixitsq@gmail.com"
+}
+```
+
+Example of successful response: 
+
+```json
+{
+    "message": "user created",
+    "id": "6299f058cd0adfd0eac06686",
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Inlhc2hkaXhpdDEyMyIsImlhdCI6MTY1NDI1NTcwNH0.eo6kPn38msOoZV6mOtF0hHw2lP2oVPGwLhzTk2pn_R8"
+}
+```
+**Implementation Steps:** 
+
+1. Do schema validation of request using ***joi.*** 
+2. Hash the password & sign access token (***jsonwebtoken***) for saving in database. 
+3. Save the details of user in Database (check database designs) 
+4. Return success.
+
+---
 ## 🛫 Dependencies/Packages Used:
 
 In NodeJS you can import packages using npm: 
@@ -9,17 +62,45 @@ In NodeJS you can import packages using npm:
 - npm install <package_name>
     - Once package.json is initialized - this command can be used throughout the project for importing new projects.
 
-**Packages:** 
+### Packages:
+
+**Security Related Packages:** 
+
+📦 **[joi](https://www.npmjs.com/package/joi)**
+
+- Using this for schema validation
+- It is used in utils/joi/ folder & used to validate incoming schema.
+- List thought by Specific User API
+
+📦 **[bcryptjs](https://www.npmjs.com/package/bcryptjs)**
+
+- Encrypting passwords & checking them when the user is logging in. We’ll be using the async method in this package.
+
+📦 **[jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken)**
+
+- For Signing & verifying access tokens. We’re keeping one login - i.e. - one access token stored in the database.
+
+**Core Packages (Database & Routing):** 
+
+📦 **[express](https://www.npmjs.com/package/express)**
+
+- framework for providing routing in a simple, subtle way (creating REST APIs)
+
+📦 **[mongodb](https://www.npmjs.com/package/mongodb)**
+
+- I’ll be using the MongoDB driver instead of an ORM.
+- Will be writing native queries for mongo.
+
+**Miscellaneous Packages:** 
 
 📦 **[dotenv](https://www.npmjs.com/package/dotenv)**
 
 - Used for reading environment variables through multiple environments.
 - This package is used in *config.js* and all the environment variables are distributed through that file.
 
-📦 **[express](https://www.npmjs.com/package/express)**
+📦 **[express-async-errors](https://www.npmjs.com/package/express-async-errors)**
 
-- framework for providing routing in a simple, subtle way (creating REST APIs)
-
+- This is a hack for solving errors which will get uncaught if you have asynchronous functions. If you don’t use this. Express won’t detect async errors and the request would timeout. It’s pretty useful.
 ---
 ## 💽 Database Design
 
