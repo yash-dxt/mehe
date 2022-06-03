@@ -8,25 +8,24 @@
 > Authorization not required.
 > 
 
-```json
+```
 // Body raw (json)
 // @required
 username: - should be minimum of 3 characters & maximum 25 characters
-					- only lowercase alphabets & numericals allowed
-					- ex: dwight12, yash20, jimpam420
+	- only lowercase alphabets & numericals allowed
+	- ex: dwight12, yash20, jimpam420
 
 password: - should contain a maximum of 100 characters & minimum of 8 characters
-					- ex: yash123456789
+	- ex: yash123456789
 
 email: - should be a valid email 
-			 - ex: yashdixitsq@gmail.com
+	- ex: yashdixitsq@gmail.com
 ```
 
 Example of Request: 
+Body Raw (JSON)
 
 ```json
-Body Raw (JSON): 
-
 {
 	"username": "yash123", 
 	"password": "Default@123", 
@@ -40,7 +39,7 @@ Example of successful response:
 {
     "message": "user created",
     "id": "6299f058cd0adfd0eac06686",
-    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Inlhc2hkaXhpdDEyMyIsImlhdCI6MTY1NDI1NTcwNH0.eo6kPn38msOoZV6mOtF0hHw2lP2oVPGwLhzTk2pn_R8"
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InTY1NDI1NTcwNH0.eo6kPn38msOoZV6mOtF0LhzTk2pn_R8"
 }
 ```
 **Implementation Steps:** 
