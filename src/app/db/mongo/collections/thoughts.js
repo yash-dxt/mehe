@@ -40,9 +40,59 @@ const createThought = async (thought, username, userId, anonymous = false) => {
         throw e;
     }
 
+}
+
+
+
+const getAllSelfThoughts = async (userId) => {
+
+    try {
+
+        const client = await MDB.getClient();
+        let db = client.db(dbName).collection(collection);
+
+        const thoughts = [];
+
+        await db.find({
+            userId
+        }).forEach((thought) => {
+            thoughts.push(thought)
+        });
+
+        return thoughts;
+
+    } catch (e) {
+        throw e;
+    }
 
 }
 
+const getThoughtsForUser = async (username) => {
+    try {
+
+        const client = await MDB.getClient();
+        let db = client.db(dbName).collection(collection);
+
+        const thoughts = [];
+
+        await db.find({
+            username
+        }).forEach((thought) => {
+            thoughts.push(thought)
+        });
+
+        return thoughts;
+
+
+    } catch (e) {
+        throw e;
+    }
+}
+
+
+
 module.exports = {
-    createThought
+    createThought,
+    getAllSelfThoughts,
+    getThoughtsForUser
 }

@@ -4,11 +4,15 @@ const auth = require('../../middleware/auth')
 const BadRequestError = require('../../errors/BadRequestError');
 const DatabaseError = require('../../errors/DatabaseError');
 const validateCreateThoughtSchema = require('../../utils/joi/createThought');
+const validateUsername = require('../../utils/joi/listThoughtsForUser');
+const listThoughtsForUser = require('../../utils/joi/listThoughtsForUser');
 
 module.exports = function thoughtRouter() {
 
     return new express.Router()
-        .post('/', auth(true), createThought);
+        .post('/', auth(true), createThought)
+        .get('/', auth(), getThoughtsForUsername)
+        .get('/self', auth(true), getAllPersonalThoughts);
 
     async function createThought(req, res) {
         const routeName = 'POST /thought/';
@@ -58,4 +62,45 @@ module.exports = function thoughtRouter() {
 
     }
 
+    async function getAllPersonalThoughts(req, res) {
+        const routeName = 'GET /thoughts/self'
+
+        const userId = req.user._id.toString();
+
+        try {
+            var thoughts = await mongo.thought.getAllSelfThoughts(userId);
+        } catch (e) {
+            throw new DatabaseError(routeName, e);
+        }
+
+
+        return res.status(200).send({
+            thoughts
+        });
+    }
+
+    async function getThoughtsForUsername(req, res) {
+        const routeName = 'GET /thoughts/self'
+
+        try {
+            listThoughtsForUser(req.query);
+        } catch (e) {
+            throw new BadRequestError(e, routeName)
+        }
+
+        const {
+            username
+        } = req.query
+
+        try {
+            var thoughts = await mongo.thought.getThoughtsForUser(username);
+        } catch (e) {
+            throw new DatabaseError(routeName, e);
+        }
+
+
+        return res.status(200).send({
+            thoughts
+        });
+    }
 }
