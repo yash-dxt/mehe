@@ -9,10 +9,18 @@ const signAccessToken = (username) => {
     const accessToken = jwt.sign({
         username
     }, secret);
-
+    console.log(accessToken);
     return accessToken;
 }
 
+
+
+const verifyAccessToken = (token) => {
+    const res = jwt.verify(token, secret)
+    return res.username;
+}
+
 module.exports = {
-    signAccessToken
+    signAccessToken,
+    verifyAccessToken
 }
