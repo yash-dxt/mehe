@@ -162,6 +162,8 @@ const getThoughtByIdAlongWithReplies = async (thoughtId) => {
             thoughts.push(thought);
         })
 
+        return thoughts[0];
+
     } catch (e) {
         throw e;
     }

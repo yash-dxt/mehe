@@ -156,7 +156,6 @@ module.exports = function thoughtRouter() {
             throw new DatabaseError(routeName, e);
         }
 
-
         return res.status(200).send({
             thoughts
         })
