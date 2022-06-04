@@ -1,3 +1,6 @@
+const {
+    ObjectID
+} = require('bson');
 var config = require('../../../../config');
 const {
     MDB_COLLECTION_THOUGHTS
@@ -42,7 +45,24 @@ const createThought = async (thought, username, userId, anonymous = false) => {
 
 }
 
+const getThoughtByThoughtId = async (thoughtId) => {
 
+    try {
+
+        const client = await MDB.getClient();
+        let db = client.db(dbName).collection(collection);
+
+        const thought = await db.findOne({
+            _id: ObjectID(thoughtId)
+        })
+
+        return thought;
+
+    } catch (e) {
+        throw e;
+    }
+
+}
 
 const getAllSelfThoughts = async (userId) => {
 
@@ -89,10 +109,9 @@ const getThoughtsForUser = async (username) => {
     }
 }
 
-
-
 module.exports = {
     createThought,
     getAllSelfThoughts,
-    getThoughtsForUser
+    getThoughtsForUser,
+    getThoughtByThoughtId
 }
