@@ -122,9 +122,9 @@ anonymous: - should be a boolean
 ```
 
 Example of Request: 
+Body Raw (JSON): 
 
 ```json
-Body Raw (JSON): 
 
 {
 		"thought": "I am not feeling too well today.",  
@@ -163,9 +163,9 @@ thoughtId: - must be a valid thoughtId present in the database.
 ```
 
 Example of Request: 
+Body Raw (JSON): 
 
 ```json
-Body Raw (JSON): 
 
 {
     "thoughtId": "629b2032ea6ded56374b9c70", 
@@ -197,6 +197,208 @@ Example of successful response:
     Also save thoughtId.
     
 4. Return response.
+
+### **💥 Get Thoughts**
+
+> **GET /thought/**
+> 
+
+> **OAuth 2.0**
+> 
+
+Fetches all the thoughts that have been posted. 
+
+This query has pagination implemented - you can use limit & skip filters. Although, by default it limits to 10 & skips 0. 
+
+```
+// Optional 
+// Body raw (json) 
+limit: Number. Should be greater than 0. 
+skip: Number. Should be greater than or equal to 0. 
+```
+
+Example of successful response: 
+
+```json
+{
+    "thoughts": [
+        {
+            "_id": "629b2032ea6ded56374b9c70",
+            "thought": "Feeling great after grabbing job opportunity.",
+            "userId": "62990b42c5c7eefcdac0c130",
+            "anonymous": false,
+            "status": "PUBLISHED",
+            "username": "yashdixit123"
+        }
+    ]
+}
+```
+
+**Implementation Steps:** 
+
+1. Go through Authentication middleware. 
+2. Verify if limit & skip are valid. If they are undefined use limit as 10 & skip as 0. 
+3. Query database for thoughts - no filter. And then apply limit and skip. 
+4. Return response.
+
+### **💥 Get Thought And Corresponding Replies API**
+
+> **GET /thought/id**
+> 
+
+> **OAuth 2.0**
+> 
+
+Fetches thought using a thoughtId. Also returns the replies of teh corresponding thought. 
+
+```
+// Query paramters
+// @required
+thoughtId: - must be a valid thoughtId present in the database. 
+```
+
+Example of Request: 
+
+```json
+Query : 
+
+{
+    "thoughtId": "629b2032ea6ded56374b9c70"
+}
+```
+
+Example of successful response: 
+
+```json
+{
+    "thoughts": {
+        "_id": "629b2032ea6ded56374b9c70",
+        "thought": "I'm not feeling too good.",
+        "userId": "62990b42c5c7eefcdac0c130",
+        "anonymous": false,
+        "status": "PUBLISHED",
+        "username": "yashdixit123",
+        "replies": [
+            {
+                "_id": "629b20afea6ded56374b9c71",
+                "thoughtId": "629b2032ea6ded56374b9c70",
+                "reply": "keep going, things get well with time. ",
+                "userId": "629b2010ea6ded56374b9c6f",
+                "anonymous": false,
+                "status": "PUBLISHED",
+                "username": "yash12345"
+            },
+            {
+                "_id": "629b20e0ea6ded56374b9c72",
+                "thoughtId": "629b2032ea6ded56374b9c70",
+                "reply": "take care.",
+                "userId": "629b2010ea6ded56374b9c6f",
+                "anonymous": false,
+                "status": "PUBLISHED",
+                "username": "yash12345"
+            },
+            {
+                "_id": "629b215eea6ded56374b9c73",
+                "thoughtId": "629b2032ea6ded56374b9c70",
+                "reply": "thank you!",
+                "userId": "62990b42c5c7eefcdac0c130",
+                "anonymous": false,
+                "status": "PUBLISHED",
+                "username": "yashdixit123"
+            }
+        ]
+    }
+}
+```
+
+**Implementation Steps:** 
+
+1. Go through Authentication middleware. 
+2. Do schema validation of request.
+3. Do the aggregation query for getting replies which correspond to the thoughtId. 
+    - This gets done by using aggregation pipeline in mongodb: 
+        - First use $match (for getting specific thought) on thoughts collections.
+        - Then use $lookup (same as JOIN) and join on replies table.
+    
+    ![Our Aggregation Pipeline](./images/aggregation-query.jpg)
+    
+4. Return response.
+
+
+### **💥 Get Own Thoughts**
+
+> **GET /thought/self**
+> 
+
+> **OAuth 2.0**
+> 
+
+> **No Parameters Required**
+> 
+
+Fetches all your own thoughts - be it anonymous and non-anonymous (can only be accessed by you) 
+
+Example of successful response: 
+
+```json
+{
+    "thoughts": [
+        {
+            "_id": "629b2032ea6ded56374b9c70",
+            "thought": "Feeling great after grabbing job opportunity.",
+            "userId": "62990b42c5c7eefcdac0c130",
+            "anonymous": false,
+            "status": "PUBLISHED",
+            "username": "yashdixit123"
+        }
+    ]
+}
+```
+
+**Implementation Steps:** 
+
+1. Go through Authentication middleware. 
+2. Get UserId from authentication middleware’s passed on request. 
+3. Query database for thoughts corresponding to specific userId.  
+4. Return response.
+
+### **💥 Get Thoughts By Username**
+
+> **GET /thought/username**
+> 
+
+> **OAuth 2.0**
+> 
+
+> **Query parameters: username (required)**
+> 
+
+Fetches all the non-anonymous thoughts for a particular username. 
+
+Example of successful response: 
+
+```json
+{
+    "thoughts": [
+        {
+            "_id": "629b2032ea6ded56374b9c70",
+            "thought": "Feeling great after grabbing job opportunity.",
+            "userId": "62990b42c5c7eefcdac0c130",
+            "anonymous": false,
+            "status": "PUBLISHED",
+            "username": "yashdixit123"
+        }
+    ]
+}
+```
+
+**Implementation Steps:** 
+
+1. Go through Authentication middleware. 
+2. Verify if username is valid & proceed on with query.
+3. Query database for thoughts corresponding to specific username.  
+4. Return response.
+
 
 ---
 ## 🛫 Dependencies/Packages Used:
@@ -271,3 +473,5 @@ Both, ***thought*** and ***replies*** have a status, which is one of the followi
 - Other than this we can have unique indexes (MongoDB also supports those) on **username** field in **users** collection.
 
 ✨ MongoDB supports many many indexes. You can use **MongoDB Compass** to get an awesome view of Explain Plan to see if the indexes you intended to use are being used properly or not in your queries.
+
+![Our Aggregation Pipeline For Get Replies & Thoughts API](./images/aggregation-query.jpg)

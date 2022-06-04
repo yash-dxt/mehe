@@ -111,7 +111,7 @@ module.exports = function thoughtRouter() {
 
         const routeName = 'GET /thoughts/'
 
-        const {
+        let {
             limit,
             skip
         } = req.body;
@@ -120,7 +120,15 @@ module.exports = function thoughtRouter() {
          * Schema validation. 
          */
 
-        if (!limit || !skip || typeof (limit) !== 'number' || typeof (skip) !== 'number' || limit <= 0 || skip < 0) {
+        if (!limit) {
+            limit = 10;
+        }
+
+        if (!skip) {
+            skip = 0;
+        }
+
+        if (typeof (limit) !== 'number' || typeof (skip) !== 'number' || limit <= 0 || skip < 0) {
             throw new BadRequestError('Bad parameters', routeName)
         }
 
