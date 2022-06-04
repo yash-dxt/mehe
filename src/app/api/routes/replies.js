@@ -4,12 +4,14 @@ const auth = require('../../middleware/auth')
 const BadRequestError = require('../../errors/BadRequestError');
 const DatabaseError = require('../../errors/DatabaseError');
 const addReplySchema = require('../../utils/joi/addReply');
+const NotAuthenticatedError = require('../../errors/NotAuthenticatedError');
 
 
 module.exports = function replyRouter() {
 
     return new express.Router()
         .post('/', auth(true), addReply)
+        .delete('/', auth(true), deleteReply)
 
 
     async function addReply(req, res) {
@@ -55,6 +57,31 @@ module.exports = function replyRouter() {
         return res.status(201).send({
             message: 'success',
             id
+        })
+    }
+
+    async function deleteReply(req, res) {
+        const routeName = 'DELETE /reply';
+
+        const userId = req.user._id.toString();
+        const {
+            replyId
+        } = req.query;
+
+        if (!replyId || typeof (replyId) != 'string') {
+            throw new BadRequestError('Bad Params', routeName);
+        }
+
+        try {
+            var delRes = await mongo.replies.deleteReply(replyId, userId);
+        } catch (e) {
+            throw new DatabaseError(routeName, e);
+        }
+
+        if (delRes == 0) throw new BadRequestError("Could not delete the article", routeName)
+
+        return res.status(200).send({
+            message: 'deleted'
         })
     }
 }

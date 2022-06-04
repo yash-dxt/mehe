@@ -36,6 +36,27 @@ const addReply = async (thoughtId, reply, userId, anonymous = false, username) =
 
 }
 
+const deleteReply = async (replyId, userId) => {
+
+    try {
+
+        const client = await MDB.getClient();
+        let db = client.db(dbName).collection(collection);
+
+        const res = await db.deleteOne({
+            userId: ObjectId(userId),
+            _id: ObjectId(replyId)
+        })
+
+        return res.deletedCount;
+
+    } catch (e) {
+        throw e;
+    }
+
+}
+
 module.exports = {
-    addReply
+    addReply,
+    deleteReply
 }
