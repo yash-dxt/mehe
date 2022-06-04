@@ -15,6 +15,17 @@ const dbName = config.mongo.db;
 const collection = MDB_COLLECTION_THOUGHTS;
 const repliesCollection = MDB_COLLECTION_REPLIES
 
+
+const transactionOptions = {
+    readPreference: 'primary',
+    readConcern: {
+        level: 'local'
+    },
+    writeConcern: {
+        w: 'majority'
+    }
+}
+
 /**
  * It takes in a thought, username, userId, and an optional anonymous flag, and returns the insertedId
  * of the thought.
@@ -169,6 +180,55 @@ const getThoughtByIdAlongWithReplies = async (thoughtId) => {
     }
 }
 
+const deleteThought = async (thoughtId, userId) => {
+
+    try {
+
+        client = await MDB.getClient();
+
+        const thoughtsCollection = client.db(dbName).collection(collection);
+        const repliesCollection = client.db(dbName).collection(MDB_COLLECTION_REPLIES);
+
+        const session = client.startSession();
+
+        var res = await session.withTransaction(async () => {
+
+            try {
+
+                var deleteThoughtResponse = await thoughtsCollection.deleteOne({
+                    _id: ObjectId(thoughtId),
+                    userId: ObjectId(userId)
+                })
+
+            } catch (e) {
+                await session.abortTransaction();
+                throw e;
+            }
+
+
+            if (deleteThoughtResponse.deletedCount == 0) {
+                await session.abortTransaction();
+                throw "Transaction error";
+            }
+
+            try {
+                await repliesCollection.deleteMany({
+                    thoughtId: ObjectId(thoughtId)
+                })
+            } catch (e) {
+                await session.abortTransaction();
+                throw e;
+            }
+
+        }, transactionOptions);
+
+        return res;
+
+    } catch (e) {
+        throw e;
+    }
+}
+
 
 module.exports = {
     createThought,
@@ -176,5 +236,6 @@ module.exports = {
     getThoughtsForUser,
     getThoughtByThoughtId,
     getAllThoughts,
-    getThoughtByIdAlongWithReplies
+    getThoughtByIdAlongWithReplies,
+    deleteThought
 }

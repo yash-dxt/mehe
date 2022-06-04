@@ -15,6 +15,7 @@ module.exports = function thoughtRouter() {
         .get('/id', auth(), getThoughtByIdAlongWithReplies)
         .get('/self', auth(true), getAllPersonalThoughts)
         .get('/username', auth(), getThoughtsForUsername)
+        .delete('/', auth(true), deleteThoughtWithReplies)
 
 
     async function createThought(req, res) {
@@ -166,6 +167,32 @@ module.exports = function thoughtRouter() {
 
         return res.status(200).send({
             thoughts
+        })
+
+    }
+
+    async function deleteThoughtWithReplies(req, res) {
+        const routeName = 'DELETE /thought';
+
+        const userId = req.user._id.toString();
+
+        const {
+            thoughtId
+        } = req.query;
+
+        if (!thoughtId || typeof (thoughtId) != 'string') {
+            throw new BadRequestError('Bad params', routeName);
+        }
+
+        try {
+            await mongo.thought.deleteThought(thoughtId, userId);
+        } catch (e) {
+            throw new DatabaseError(routeName, e);
+        }
+
+
+        return res.status(200).send({
+            message: 'Success'
         })
 
     }
