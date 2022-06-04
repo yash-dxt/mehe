@@ -74,8 +74,8 @@ Body Raw (JSON)
 ```json
 
 {
-	"username": 'yash123', 
-	"password": 'Default@123', 
+	"username": "yash123", 
+	"password": "Default@123", 
 }
 ```
 

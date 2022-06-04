@@ -11,8 +11,8 @@ module.exports = function thoughtRouter() {
 
     return new express.Router()
         .post('/', auth(true), createThought)
-        .get('/', auth(), getThoughtsForUsername)
-        .get('/self', auth(true), getAllPersonalThoughts);
+        .get('/username', auth(), getThoughtsForUsername)
+        .get('/self', auth(true), getAllPersonalThoughts)
 
     async function createThought(req, res) {
         const routeName = 'POST /thought/';
@@ -80,7 +80,7 @@ module.exports = function thoughtRouter() {
     }
 
     async function getThoughtsForUsername(req, res) {
-        const routeName = 'GET /thoughts/self'
+        const routeName = 'GET /thoughts/username'
 
         try {
             listThoughtsForUser(req.query);

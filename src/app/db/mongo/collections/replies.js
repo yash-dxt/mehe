@@ -1,3 +1,6 @@
+const {
+    ObjectId
+} = require('mongodb');
 var config = require('../../../../config');
 const {
     MDB_COLLECTION_REPLIES
@@ -9,9 +12,9 @@ const collection = MDB_COLLECTION_REPLIES;
 
 const addReply = async (thoughtId, reply, userId, anonymous = false, username) => {
     const objToBeInserted = {
-        thoughtId,
+        thoughtId: ObjectId(thoughtId),
         reply,
-        userId,
+        userId: ObjectId(userId),
         anonymous,
         status: "PUBLISHED"
     }

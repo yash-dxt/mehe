@@ -41,7 +41,10 @@ module.exports = function replyRouter() {
 
         const thoughtIdToString = thought._id.toString();
         const userId = req.user._id.toString();
-        const username = req.user.username;
+
+        if (!anonymous) {
+            var username = req.user.username;
+        }
 
         try {
             var id = await mongo.replies.addReply(thoughtIdToString, reply, userId, anonymous, username);

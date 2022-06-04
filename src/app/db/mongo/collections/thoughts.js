@@ -1,6 +1,9 @@
 const {
     ObjectID
 } = require('bson');
+const {
+    ObjectId
+} = require('mongodb');
 var config = require('../../../../config');
 const {
     MDB_COLLECTION_THOUGHTS
@@ -23,7 +26,7 @@ const collection = MDB_COLLECTION_THOUGHTS;
 const createThought = async (thought, username, userId, anonymous = false) => {
     const objToBeInserted = {
         thought,
-        userId,
+        userId: ObjectID(userId),
         anonymous,
         status: "PUBLISHED"
     }
@@ -74,7 +77,7 @@ const getAllSelfThoughts = async (userId) => {
         const thoughts = [];
 
         await db.find({
-            userId
+            userId: ObjectId(userId)
         }).forEach((thought) => {
             thoughts.push(thought)
         });
