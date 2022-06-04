@@ -102,6 +102,101 @@ Example of successful response:
 3. Sign new access token, and save it in database. 
 4. Return response, delete hashed password.
 
+### **💥 Create Thought API**
+
+> **POST /thought/**
+> 
+
+> **OAuth 2.0**
+> 
+
+```
+// Body raw (json)
+// @required
+thought: - should be minimum of 5 characters & maximum of 350. 
+				 - ex: "I am not feeling well today."
+
+anonymous: - should be a boolean 
+					 - required 
+					 - ex: false, true
+```
+
+Example of Request: 
+
+```json
+Body Raw (JSON): 
+
+{
+		"thought": "I am not feeling too well today.",  
+		"anonymous": false
+}
+```
+
+Example of successful response: 
+
+```json
+{
+    "message": "thought created",
+    "id": "629b2032ea6ded56374b9c70"
+}
+```
+
+### **💥 Add Reply to Thought API**
+
+> **POST /reply/**
+> 
+
+> **OAuth 2.0**
+> 
+
+```
+// Body raw (json)
+// @required
+reply: - should be minimum of 5 characters & maximum of 350. 
+				 - ex: "Things get better."
+
+anonymous: - should be a boolean 
+					 - required 
+					 - ex: false, true
+
+thoughtId: - must be a valid thoughtId present in the database. 
+```
+
+Example of Request: 
+
+```json
+Body Raw (JSON): 
+
+{
+    "thoughtId": "629b2032ea6ded56374b9c70", 
+    "reply": "Take care. Things get better with time.",
+    "anonymous": false
+}
+```
+
+Example of successful response: 
+
+```json
+{
+    "message": "success",
+    "id": "629b2032ea6ded56374b9c70"
+}
+```
+
+**Implementation Steps:** 
+
+1. Go through Authentication middleware. 
+2. Do schema validation of request using ***joi.*** 
+3. If anonymous: 
+    - Don’t save username in database, only store userId.
+    
+    If not anonymous: 
+    
+    - Save username along with userId in the database.
+    
+    Also save thoughtId.
+    
+4. Return response.
 
 ---
 ## 🛫 Dependencies/Packages Used:
