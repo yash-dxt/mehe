@@ -11,8 +11,11 @@ module.exports = function thoughtRouter() {
 
     return new express.Router()
         .post('/', auth(true), createThought)
-        .get('/username', auth(), getThoughtsForUsername)
+        .get('/', auth(), getAllThoughts)
+        .get('/id', auth(), getThoughtByIdAlongWithReplies)
         .get('/self', auth(true), getAllPersonalThoughts)
+        .get('/username', auth(), getThoughtsForUsername)
+
 
     async function createThought(req, res) {
         const routeName = 'POST /thought/';
@@ -102,5 +105,61 @@ module.exports = function thoughtRouter() {
         return res.status(200).send({
             thoughts
         });
+    }
+
+    async function getAllThoughts(req, res) {
+
+        const routeName = 'GET /thoughts/'
+
+        const {
+            limit,
+            skip
+        } = req.body;
+
+        /**
+         * Schema validation. 
+         */
+
+        if (!limit || !skip || typeof (limit) !== 'number' || typeof (skip) !== 'number' || limit <= 0 || skip < 0) {
+            throw new BadRequestError('Bad parameters', routeName)
+        }
+
+        let thoughts;
+        try {
+            thoughts = await mongo.thought.getAllThoughts(limit, skip);
+        } catch (e) {
+            throw new DatabaseError(routeName, e);
+        }
+
+        return res.status(200).send({
+            thoughts
+        })
+
+    }
+
+    async function getThoughtByIdAlongWithReplies(req, res) {
+        const routeName = 'GET /thought/id';
+
+        const {
+            thoughtId
+        } = req.query;
+
+        if (!thoughtId || typeof (thoughtId) != 'string') {
+            throw new BadRequestError('Bad parameters', routeName);
+        }
+
+        let thoughts;
+
+        try {
+            thoughts = await mongo.thought.getThoughtByIdAlongWithReplies(thoughtId);
+        } catch (e) {
+            throw new DatabaseError(routeName, e);
+        }
+
+
+        return res.status(200).send({
+            thoughts
+        })
+
     }
 }

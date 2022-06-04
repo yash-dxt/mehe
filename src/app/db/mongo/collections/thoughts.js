@@ -6,12 +6,14 @@ const {
 } = require('mongodb');
 var config = require('../../../../config');
 const {
-    MDB_COLLECTION_THOUGHTS
+    MDB_COLLECTION_THOUGHTS,
+    MDB_COLLECTION_REPLIES
 } = require('../../../../constants');
 const MDB = require('../client').MDB;
 
 const dbName = config.mongo.db;
 const collection = MDB_COLLECTION_THOUGHTS;
+const repliesCollection = MDB_COLLECTION_REPLIES
 
 /**
  * It takes in a thought, username, userId, and an optional anonymous flag, and returns the insertedId
@@ -112,9 +114,65 @@ const getThoughtsForUser = async (username) => {
     }
 }
 
+const getAllThoughts = async (limit, skip) => {
+    try {
+
+        const client = await MDB.getClient();
+        let db = client.db(dbName).collection(collection);
+
+        const thoughts = [];
+
+        await db.find({}, {
+            limit: limit,
+            skip: skip
+        }).forEach((thought) => {
+            thoughts.push(thought)
+        });
+
+        return thoughts;
+
+
+    } catch (e) {
+        throw e;
+    }
+}
+
+const getThoughtByIdAlongWithReplies = async (thoughtId) => {
+    try {
+
+        const client = await MDB.getClient();
+        let db = client.db(dbName).collection(collection);
+
+
+        const thoughts = [];
+        await db.aggregate([{
+                $match: {
+                    _id: ObjectId(thoughtId)
+                }
+            },
+            {
+                $lookup: {
+                    from: repliesCollection,
+                    localField: '_id',
+                    foreignField: 'thoughtId',
+                    as: 'replies'
+                }
+            }
+        ]).forEach((thought) => {
+            thoughts.push(thought);
+        })
+
+    } catch (e) {
+        throw e;
+    }
+}
+
+
 module.exports = {
     createThought,
     getAllSelfThoughts,
     getThoughtsForUser,
-    getThoughtByThoughtId
+    getThoughtByThoughtId,
+    getAllThoughts,
+    getThoughtByIdAlongWithReplies
 }
