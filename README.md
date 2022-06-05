@@ -1,4 +1,4 @@
-## 🌐 REST APIs Documentation
+## 🌐 REST APIs Docs & Implementation
 
 ### **💥 Signup API**
 
@@ -87,11 +87,10 @@ Example of successful response:
         "_id": "62990b42c5c7eefcdac0c130",
         "username": "yashdixit123",
         "email": "yash@attentioun.com",
-        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Inlhc2hkaXhpdDEyMyIsImlhdCI6MTY1NDE5NzA1OH0.HAslReqcoWdGVPRqUDmI7xA0J1iqBGasXWafAFZTDTM",
+        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Inlhc2hkaXhpdDEyMyIsImlhdCI6MTY1NDQyMTcxNn0.hreNIh_vbQDKws4U2Hcs1PENC0eHKuGiim7DAH4X9NE",
         "ban": false,
         "verified": false
-    },
-    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Inlhc2hkaXhpdDEyMyIsImlhdCI6MTY1NDI1OTgzN30.iOpmM-tXJOakv08nMvXhISsMqwnAyxXEHENutgo_0qI"
+    }
 }
 ```
 
@@ -398,6 +397,69 @@ Example of successful response:
 2. Verify if username is valid & proceed on with query.
 3. Query database for thoughts corresponding to specific username.  
 4. Return response.
+
+
+
+### **💥 Delete Thought API**
+
+> **DELETE /thought/**
+> 
+
+> **OAuth 2.0**
+> 
+
+> **Query parameters: thoughtId (required and should belong to user)**
+> 
+
+Deletes the thought & its replies with given thought Id - which should belong to the user. 
+
+Expected response in case everything is correct: 
+
+```json
+{
+		"message": "success"
+}
+```
+
+**Implementation Steps:** 
+
+1. Go through Authentication middleware. 
+2. Check if thoughtId is a valid string. 
+3. Query database for deleting: This includes two steps, and is a ACID transaction: 
+    - Delete One on thoughts collection (send userId too, to ensure it belongs to him)
+        - If this fails or doesn’t delete, ROLLBACK & return error.
+    - Delete Many on replies collection (with all the replies which have same thoughtId)
+        - If this fails - ROLLBACK & return error.
+4. Return response.
+
+### **💥 Delete Reply API**
+
+> **DELETE /reply/**
+> 
+
+> **OAuth 2.0**
+> 
+
+> **Query parameters: replyId (required and should belong to user)**
+> 
+
+Deletes the reply with replyId - which should belong to the user. 
+
+Expected response in case everything is correct: 
+
+```json
+{
+		"message": "success"
+}
+```
+
+**Implementation Steps:** 
+
+1. Go through Authentication middleware. 
+2. Check if replyId is a valid string. 
+3. Query database for deleting includes querying with replyId & userId to ensure that reply belongs to user. 
+4. Return response.
+
 
 
 ---
