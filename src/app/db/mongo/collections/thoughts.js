@@ -61,6 +61,12 @@ const createThought = async (thought, username, userId, anonymous = false) => {
 
 }
 
+/**
+ * It takes a thoughtId as a parameter, connects to the database, finds the thought with the matching
+ * thoughtId, and returns the thought.
+ * @param thoughtId - the id of the thought you want to get
+ * @returns A promise.
+ */
 const getThoughtByThoughtId = async (thoughtId) => {
 
     try {
@@ -80,6 +86,11 @@ const getThoughtByThoughtId = async (thoughtId) => {
 
 }
 
+/**
+ * It takes a userId, finds all the thoughts in the database that match that userId, and returns them.
+ * @param userId - ObjectId(userId)
+ * @returns An array of objects.
+ */
 const getAllSelfThoughts = async (userId) => {
 
     try {
@@ -103,6 +114,12 @@ const getAllSelfThoughts = async (userId) => {
 
 }
 
+/**
+ * It takes a username as an argument, connects to the database, finds all the thoughts for that user,
+ * and returns them.
+ * @param username - the username of the user whose thoughts you want to retrieve
+ * @returns An array of objects.
+ */
 const getThoughtsForUser = async (username) => {
     try {
 
@@ -125,6 +142,12 @@ const getThoughtsForUser = async (username) => {
     }
 }
 
+/**
+ * It gets all the thoughts from the database, and returns them as an array.
+ * @param limit - the number of documents to return
+ * @param skip - The number of documents to skip before returning.
+ * @returns An array of objects.
+ */
 const getAllThoughts = async (limit, skip) => {
     try {
 
@@ -147,6 +170,15 @@ const getAllThoughts = async (limit, skip) => {
         throw e;
     }
 }
+
+/**
+ * It takes a thoughtId as an argument, and returns the thought along with its replies.
+ * It is using mongodb's aggregations. 
+ * First, it matches the _id of the thought. 
+ * Then, it does a $lookup (read JOIN in SQL) on reply table & fetches corresponding thoughtId's replies.
+ * @param thoughtId - the id of the thought you want to get
+ * @returns An array of objects.
+ */
 
 const getThoughtByIdAlongWithReplies = async (thoughtId) => {
     try {
@@ -180,6 +212,15 @@ const getThoughtByIdAlongWithReplies = async (thoughtId) => {
     }
 }
 
+/**
+ * It deletes a thought and all of its replies from the database.
+ * It is an ACID transaction. 
+ * If it fails to delete thought corresponding to ID. It ROLLBACKS. 
+ * It also ROLLBACKS whjen
+ * @param thoughtId - The id of the thought to be deleted
+ * @param userId - ObjectId(userId)
+ * @returns The result of the transaction.
+ */
 const deleteThought = async (thoughtId, userId) => {
 
     try {

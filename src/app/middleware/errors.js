@@ -4,6 +4,11 @@ const NotFoundError = require('../errors/NotFoundError')
 const ServiceError = require('../errors/ServiceError');
 const BadRequestError = require('../errors/BadRequestError')
 
+/**
+ * Sends a uniform error response.
+ * This takes in a known error and sends a response accordingly. 
+ */
+
 
 module.exports = () => {
     return (err, req, res, next) => {

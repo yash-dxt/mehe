@@ -30,6 +30,10 @@ module.exports = function replyRouter() {
         } = req.body;
 
 
+        /**
+         * Fetching thought from database. 
+         * To see if it is valid or not. 
+         */
         try {
             var thought = await mongo.thought.getThoughtByThoughtId(thoughtId);
         } catch (e) {
@@ -37,9 +41,17 @@ module.exports = function replyRouter() {
         }
 
 
+
         if (!thought) {
             throw new BadRequestError('No thought with corresponding thoughtId found', routeName);
         }
+
+
+        /**
+         * Extract userId from req.user (coming from auth middleware) 
+         * If the user is anonymous we only store the userId & if not we store 
+         * both userId & username. 
+         */
 
         const thoughtIdToString = thought._id.toString();
         const userId = req.user._id.toString();
@@ -68,10 +80,20 @@ module.exports = function replyRouter() {
             replyId
         } = req.query;
 
+        /**
+         * Checking if replyId exists and is valid. 
+         */
+
         if (!replyId || typeof (replyId) != 'string') {
             throw new BadRequestError('Bad Params', routeName);
         }
 
+
+        /**
+         * Try to delete response and also simultaneously validate if 
+         * reply belongs to user. 
+         * If nothing is deleted, we throw an error. 
+         */
         try {
             var delRes = await mongo.replies.deleteReply(replyId, userId);
         } catch (e) {

@@ -69,6 +69,12 @@ const createNewUser = async (username, hashedPassword, email, accessToken, ban =
 }
 
 
+/**
+ * This function will return a user object from the database if the username exists, otherwise it will
+ * return null.
+ * @param username - the username of the user you want to get
+ * @returns The user object.
+ */
 
 const getUserByUsername = async (username) => {
 
@@ -88,9 +94,13 @@ const getUserByUsername = async (username) => {
 
 }
 
-
-
-
+/**
+ * This function takes a username and a new access token and updates the access token in the database
+ * for the user with the given username.
+ * @param username - the username of the user
+ * @param newAccessToken - the new access token that you want to set
+ * @returns The result of the updateOne() method.
+ */
 const setNewAccessToken = async (username, newAccessToken) => {
 
     try {
@@ -112,10 +122,6 @@ const setNewAccessToken = async (username, newAccessToken) => {
     }
 
 }
-
-
-
-
 
 
 module.exports = {

@@ -11,6 +11,11 @@ const {
 module.exports = (getUser) => {
     return async (req, res, next) => {
 
+        /**
+         * Checks if token is present & valid - then extracts username from accessToken. 
+         * If it isn't throws a 401. 
+         */
+
         const token = req.headers.authorization;
 
         if (!token) {
@@ -26,6 +31,10 @@ module.exports = (getUser) => {
             return;
         }
 
+        /**
+         * If getUser is true - we fetch user from database. And set req.user as the user's obj. 
+         * Also, if false we set req.username as the user's username.
+         */
         if (getUser) {
             const user = await mongo.user.getUserByUsername(username);
             req.user = user;

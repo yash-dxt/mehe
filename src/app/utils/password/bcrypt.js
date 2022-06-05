@@ -1,6 +1,11 @@
 const bcrypt = require('bcryptjs');
 
 
+/**
+ * It takes a password, hashes it, and returns the hashed password.
+ * @param password - The password to be hashed.
+ * @returns a hashed password.
+ */
 const generatePasswordHash = async (password) => {
     let hashedPassword;
 
@@ -13,6 +18,13 @@ const generatePasswordHash = async (password) => {
     return hashedPassword;
 
 }
+
+/**
+ * This function takes a password and a hashed password, and returns true if the password matches the
+ * hashed password, and throws error if it doesn't. 
+ * @param password - The password that the user entered
+ * @param hashedPassword - The hashed password from the database
+ */
 
 const checkPasswordHash = async (password, hashedPassword) => {
     try {

@@ -71,6 +71,11 @@ module.exports = function thoughtRouter() {
 
         const userId = req.user._id.toString();
 
+        /**
+         * We fetch all the anonymous & non-anonymous thoughts 
+         * from the logged in user. 
+         */
+
         try {
             var thoughts = await mongo.thought.getAllSelfThoughts(userId);
         } catch (e) {
@@ -86,6 +91,9 @@ module.exports = function thoughtRouter() {
     async function getThoughtsForUsername(req, res) {
         const routeName = 'GET /thoughts/username'
 
+        /**
+         * Checks for valid username. 
+         */
         try {
             listThoughtsForUser(req.query);
         } catch (e) {
@@ -96,6 +104,9 @@ module.exports = function thoughtRouter() {
             username
         } = req.query
 
+        /**
+         * Fetches non-anonymous thoughts from the username. 
+         */
         try {
             var thoughts = await mongo.thought.getThoughtsForUser(username);
         } catch (e) {
@@ -132,6 +143,10 @@ module.exports = function thoughtRouter() {
         if (typeof (limit) !== 'number' || typeof (skip) !== 'number' || limit <= 0 || skip < 0) {
             throw new BadRequestError('Bad parameters', routeName)
         }
+
+        /**
+         * Fetches thoughts from the database. 
+         */
 
         let thoughts;
         try {
@@ -176,6 +191,9 @@ module.exports = function thoughtRouter() {
 
         const userId = req.user._id.toString();
 
+        /**
+         * Validating thoughtId to be a valid string. 
+         */
         const {
             thoughtId
         } = req.query;
@@ -183,6 +201,11 @@ module.exports = function thoughtRouter() {
         if (!thoughtId || typeof (thoughtId) != 'string') {
             throw new BadRequestError('Bad params', routeName);
         }
+
+        /**
+         * An ACID Transaction which deletes thought created by the userId. 
+         * If something fails we ROLLBACK & Return error. 
+         */
 
         try {
             await mongo.thought.deleteThought(thoughtId, userId);

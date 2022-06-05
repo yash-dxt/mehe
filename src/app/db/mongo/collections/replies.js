@@ -10,6 +10,17 @@ const MDB = require('../client').MDB;
 const dbName = config.mongo.db;
 const collection = MDB_COLLECTION_REPLIES;
 
+/**
+ * It takes in a thoughtId, reply, userId, anonymous, and username and inserts a new reply into the
+ * database.
+ * @param thoughtId - the id of the thought that the reply is being added to
+ * @param reply - the reply text
+ * @param userId - ObjectId(userId),
+ * @param [anonymous=false] - boolean
+ * @param username - String
+ * @returns The insertedId
+ */
+
 const addReply = async (thoughtId, reply, userId, anonymous = false, username) => {
     const objToBeInserted = {
         thoughtId: ObjectId(thoughtId),
@@ -36,6 +47,12 @@ const addReply = async (thoughtId, reply, userId, anonymous = false, username) =
 
 }
 
+/**
+ * It deletes a reply to a thought from the database.
+ * @param replyId - the id of the reply to be deleted
+ * @param userId - ObjectId(userId)
+ * @returns The number of documents deleted.
+ */
 const deleteReply = async (replyId, userId) => {
 
     try {
