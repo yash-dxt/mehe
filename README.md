@@ -1,3 +1,176 @@
+
+## 📜 Table of contents
+
+
+- **[Features](#list-of-features)**
+
+- **[Database Design](#-database-design)**
+
+- **[Dependencies](#-dependenciespackages-used)**
+
+- **[Middlewares](#-middleware-docs)**
+
+- **[REST API Docs & Implementations](#-rest-apis-docs--implementation)**
+
+---
+
+## 🔉List Of Features
+
+- A user should be able to Log In & SignUp using a username / password
+
+- A user should be able to post a thought anonymously & non-anonymously
+- A user should be able to reply to a thought anonymously & non-anonymously
+- A user should be able to delete their thoughts & replies (anonymous as well as non-anonymous)
+- Any other user shouldn't able to identify who posted what anonymously
+- A user should be able to list all the thoughts posted
+- A user should be able to list all thoughts posted by them and any other users.
+
+---
+
+## 💽 Database Design
+
+![Database Design ](./images/database-design.jpg)
+
+We’ve got three collections, so far: 
+
+*t**houghts*** & ***replies*** collection is linked to the ***users*** table using the username. 
+
+Both, ***thought*** and ***replies*** have a status, which is one of the following - 
+
+- PUBLISHED
+- DRAFT
+- REMOVED
+- DELETED
+
+**Anonymity** is maintained by maintaining both userId & username in the database. There might be other ways but if a user has anonymous = true - the user won't have his username stored in thought or even replies. While, if a user has anonymous = false, he will also have username stored in database. 
+
+**An ACID Transaction** has also been implemented in the Delete Thought API. Check for API docs for implementation details. 
+
+**Some internals on indexing of MongoDB:** 
+
+- In MongoDB the indexes come built in with the **_id** (the created at time can also be derived from them) so in each collections we’ll have that **_id**. Also, this **_id** is always unique.
+- Other than this we can have unique indexes (MongoDB also supports those) on **username** field in **users** collection.
+
+✨ MongoDB supports many many indexes. You can use **MongoDB Compass** to get an awesome view of Explain Plan to see if the indexes you intended to use are being used properly or not in your queries.
+
+![Our Aggregation Pipeline For Get Replies & Thoughts API](./images/aggregation-query.jpg)
+
+---
+
+## 🛫 Dependencies/Packages Used:
+
+I'll be using: **Node, Javascript, Express & MongoDB** for the project.
+
+In NodeJS you can import packages using npm: 
+
+**How?**
+
+- **npm init -y**
+    - Initialized package.json & all the multiple options yes (due to -y)
+- **npm install <package_name>**
+    - Once package.json is initialized - this command can be used throughout the project for importing new projects.
+
+To run this project: 
+
+> **node src/app/api/index.js** 
+
+
+Before running you need to have a .env file. Check for required environment variables in the **_src/config.js_** file. 
+
+Although, for production purposes & deploying it on a server. I'd use something like AWS parameter store and for running the app I'd use a process manager (pm2). 
+
+### Packages:
+
+**Security Related Packages:** 
+
+📦 **[joi](https://www.npmjs.com/package/joi)**
+
+- Using this for schema validation
+- It is used in utils/joi/ folder & used to validate incoming schema.
+- List thought by Specific User API
+
+📦 **[bcryptjs](https://www.npmjs.com/package/bcryptjs)**
+
+- Encrypting passwords & checking them when the user is logging in. We’ll be using the async method in this package.
+
+📦 **[jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken)**
+
+- For Signing & verifying access tokens. We’re keeping one login - i.e. - one access token stored in the database.
+
+**Core Packages (Database & Routing):** 
+
+📦 **[express](https://www.npmjs.com/package/express)**
+
+- framework for providing routing in a simple, subtle way (creating REST APIs)
+
+📦 **[mongodb](https://www.npmjs.com/package/mongodb)**
+
+- I’ll be using the MongoDB driver instead of an ORM.
+- Will be writing native queries for mongo.
+
+**Miscellaneous Packages:** 
+
+📦 **[dotenv](https://www.npmjs.com/package/dotenv)**
+
+- Used for reading environment variables through multiple environments.
+- This package is used in *config.js* and all the environment variables are distributed through that file.
+
+📦 **[express-async-errors](https://www.npmjs.com/package/express-async-errors)**
+
+- This is a hack for solving errors which will get uncaught if you have asynchronous functions. If you don’t use this. Express won’t detect async errors and the request would timeout. It’s pretty useful.
+---
+
+
+## 🤝 Middleware Docs
+
+### 🤜 Error Handling Middleware
+
+It’s a middleware for handling the errors and giving a uniform error response. 
+
+Errors that are uncaught would be of these types: 
+
+- Database Error (500)
+- Not Authenticated Error (401)
+- Bad Request Error (400)
+- Service Error (500)
+- Not Found Error (404)
+
+All of these have similar properties as these are custom errors that I have made in the codebase - checkout the ***src/app/errors*** folder.
+
+This will catch the error, set status code & send a uniform response. 
+
+In case of uncaught error - it will send a response which sends response (and we can add alarms there)  
+
+A usual error response: 
+
+```json
+{
+    "route": "DELETE /reply",
+    "message": "Bad Params",
+    "statusCode": 400,
+    "error": "Bad Request",
+    "type": "BadRequestError"
+}
+```
+
+### 🤜 Authentication Middleware
+
+This middleware is run before accessing OAuth 2.0 enabled request as they are protected & require a user to be logged in. 
+
+This function also has a ***getUser*** boolean which someone can use if he wants a user in the middleware. I’ve used it to get userId in the current project - could also have attached it to the payload while signing jwt token. 
+
+Steps that happen in auth middleware, otherwise a 401 is thrown: 
+
+1. Check if token present in the request. 
+2. Verify token, extract username. 
+3. Two cases now, depending on getUser: 
+    - If true, extract username from token & fetch the user. After that set it to req.user.
+    - If false, extract username and set it to req.username.
+
+---
+
+
+
 ## 🌐 REST APIs Docs & Implementation
 
 ### **💥 Signup API**
@@ -258,8 +431,8 @@ thoughtId: - must be a valid thoughtId present in the database.
 
 Example of Request: 
 
+Query: 
 ```json
-Query : 
 
 {
     "thoughtId": "629b2032ea6ded56374b9c70"
@@ -461,132 +634,6 @@ Expected response in case everything is correct:
 4. Return response.
 
 
-
 ---
 
-## 🤝 Middleware Docs
 
-### 🤜 Error Handling Middleware
-
-It’s a middleware for handling the errors and giving a uniform error response. 
-
-Errors that are uncaught would be of these types: 
-
-- Database Error (500)
-- Not Authenticated Error (401)
-- Bad Request Error (400)
-- Service Error (500)
-- Not Found Error (404)
-
-All of these have similar properties as these are custom errors that I have made in the codebase - checkout the ***src/app/errors*** folder.
-
-This will catch the error, set status code & send a uniform response. 
-
-In case of uncaught error - it will send a response which sends response (and we can add alarms there)  
-
-A usual error response: 
-
-```json
-{
-    "route": "DELETE /reply",
-    "message": "Bad Params",
-    "statusCode": 400,
-    "error": "Bad Request",
-    "type": "BadRequestError"
-}
-```
-
-### 🤜 Authentication Middleware
-
-This middleware is run before accessing OAuth 2.0 enabled request as they are protected & require a user to be logged in. 
-
-This function also has a ***getUser*** boolean which someone can use if he wants a user in the middleware. I’ve used it to get userId in the current project - could also have attached it to the payload while signing jwt token. 
-
-Steps that happen in auth middleware, otherwise a 401 is thrown: 
-
-1. Check if token present in the request. 
-2. Verify token, extract username. 
-3. Two cases now, depending on getUser: 
-    - If true, extract username from token & fetch the user. After that set it to req.user.
-    - If false, extract username and set it to req.username.
-
----
-
-## 🛫 Dependencies/Packages Used:
-
-I'll be using: **Node, Javascript, Express & MongoDB** for the project.
-
-In NodeJS you can import packages using npm: 
-
-**How?**
-
-- **npm init -y**
-    - Initialized package.json & all the multiple options yes (due to -y)
-- **npm install <package_name>**
-    - Once package.json is initialized - this command can be used throughout the project for importing new projects.
-
-### Packages:
-
-**Security Related Packages:** 
-
-📦 **[joi](https://www.npmjs.com/package/joi)**
-
-- Using this for schema validation
-- It is used in utils/joi/ folder & used to validate incoming schema.
-- List thought by Specific User API
-
-📦 **[bcryptjs](https://www.npmjs.com/package/bcryptjs)**
-
-- Encrypting passwords & checking them when the user is logging in. We’ll be using the async method in this package.
-
-📦 **[jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken)**
-
-- For Signing & verifying access tokens. We’re keeping one login - i.e. - one access token stored in the database.
-
-**Core Packages (Database & Routing):** 
-
-📦 **[express](https://www.npmjs.com/package/express)**
-
-- framework for providing routing in a simple, subtle way (creating REST APIs)
-
-📦 **[mongodb](https://www.npmjs.com/package/mongodb)**
-
-- I’ll be using the MongoDB driver instead of an ORM.
-- Will be writing native queries for mongo.
-
-**Miscellaneous Packages:** 
-
-📦 **[dotenv](https://www.npmjs.com/package/dotenv)**
-
-- Used for reading environment variables through multiple environments.
-- This package is used in *config.js* and all the environment variables are distributed through that file.
-
-📦 **[express-async-errors](https://www.npmjs.com/package/express-async-errors)**
-
-- This is a hack for solving errors which will get uncaught if you have asynchronous functions. If you don’t use this. Express won’t detect async errors and the request would timeout. It’s pretty useful.
----
-## 💽 Database Design
-
-![Database Design ](./images/database-design.jpg)
-
-We’ve got three collections, so far: 
-
-*t**houghts*** & ***replies*** collection is linked to the ***users*** table using the username. 
-
-Both, ***thought*** and ***replies*** have a status, which is one of the following - 
-
-- PUBLISHED
-- DRAFT
-- REMOVED
-- DELETED
-
-**Anonymity** is maintained by maintaining both userId & username in the database. There might be other ways but if a user has anonymous = true - the user won't have his username stored in thought or even replies. While, if a user has anonymous = false, he will also have username stored in database. 
-
-**Some internals on indexing of MongoDB:** 
-
-- In MongoDB the indexes come built in with the **_id** (the created at time can also be derived from them) so in each collections we’ll have that **_id**. Also, this **_id** is always unique.
-- Other than this we can have unique indexes (MongoDB also supports those) on **username** field in **users** collection.
-
-✨ MongoDB supports many many indexes. You can use **MongoDB Compass** to get an awesome view of Explain Plan to see if the indexes you intended to use are being used properly or not in your queries.
-
-![Our Aggregation Pipeline For Get Replies & Thoughts API](./images/aggregation-query.jpg)
