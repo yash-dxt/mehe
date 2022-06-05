@@ -463,7 +463,58 @@ Expected response in case everything is correct:
 
 
 ---
+
+## 🤝 Middleware Docs
+
+### 🤜 Error Handling Middleware
+
+It’s a middleware for handling the errors and giving a uniform error response. 
+
+Errors that are uncaught would be of these types: 
+
+- Database Error (500)
+- Not Authenticated Error (401)
+- Bad Request Error (400)
+- Service Error (500)
+- Not Found Error (404)
+
+All of these have similar properties as these are custom errors that I have made in the codebase - checkout the ***src/app/errors*** folder.
+
+This will catch the error, set status code & send a uniform response. 
+
+In case of uncaught error - it will send a response which sends response (and we can add alarms there)  
+
+A usual error response: 
+
+```json
+{
+    "route": "DELETE /reply",
+    "message": "Bad Params",
+    "statusCode": 400,
+    "error": "Bad Request",
+    "type": "BadRequestError"
+}
+```
+
+### 🤜 Authentication Middleware
+
+This middleware is run before accessing OAuth 2.0 enabled request as they are protected & require a user to be logged in. 
+
+This function also has a ***getUser*** boolean which someone can use if he wants a user in the middleware. I’ve used it to get userId in the current project - could also have attached it to the payload while signing jwt token. 
+
+Steps that happen in auth middleware, otherwise a 401 is thrown: 
+
+1. Check if token present in the request. 
+2. Verify token, extract username. 
+3. Two cases now, depending on getUser: 
+    - If true, extract username from token & fetch the user. After that set it to req.user.
+    - If false, extract username and set it to req.username.
+
+---
+
 ## 🛫 Dependencies/Packages Used:
+
+I'll be using: **Node, Javascript, Express & MongoDB** for the project.
 
 In NodeJS you can import packages using npm: 
 
@@ -528,6 +579,8 @@ Both, ***thought*** and ***replies*** have a status, which is one of the followi
 - DRAFT
 - REMOVED
 - DELETED
+
+**Anonymity** is maintained by maintaining both userId & username in the database. There might be other ways but if a user has anonymous = true - the user won't have his username stored in thought or even replies. While, if a user has anonymous = false, he will also have username stored in database. 
 
 **Some internals on indexing of MongoDB:** 
 
